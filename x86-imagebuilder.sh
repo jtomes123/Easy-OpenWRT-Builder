@@ -1,9 +1,9 @@
 #!/bin/bash
 #######################################################################################################################
-# Build and virtualize custom OpenWRT images for x86 v1
-# DO NOT TRY TO RESIZE HARDWARE ROUTER FLASH PARTITiONS, RESIZE AND VM OPTIONS FOR x86 BUILDS ONLY!!
+# Build and virtualize custom OpenWRT images for x86
+# DO NOT RESIZE NAND ROUTER FLASH PARTITiONS, RESIZE IS FOR x86 BUILDS ONLY!!
 # David Harrop
-# June 2024
+# November 2024
 #######################################################################################################################
 
 clear
@@ -40,21 +40,43 @@ fi
 echo
 echo -e "${CYAN}Script requires sudo privileges for some actions${NC}"
 echo
-sudo apt-get update -qq
+sudo sudo -v
 echo
 echo -e "${CYAN}Checking for curl...${NC}"
-sudo apt-get install curl -qq -y
-
+sudo apt-get update -qq && sudo apt-get install curl -qq -y
 clear
 
 #######################################################################################################################
 # ADD YOUR CUSTOM PACKAGE RECIPE HERE
 #######################################################################################################################
 
-# Below are example packages only and can be deleted
-    CUSTOM_PACKAGES="blockd block-mount kmod-fs-ext4 kmod-usb2 kmod-usb3 kmod-usb-storage kmod-usb-core usbutils \
+# Basic example recipe, change these to your requirements.
+CUSTOM_PACKAGES="blockd block-mount kmod-fs-ext4 kmod-usb2 kmod-usb3 kmod-usb-storage kmod-usb-core usbutils \
     -dnsmasq dnsmasq-full luci luci-app-ddns luci-app-samba4 luci-app-sqm sqm-scripts \
-	luci-app-attendedsysupgrade curl nano"
+    luci-app-attendedsysupgrade curl nano luci-app-attendedsysupgrade"
+
+# ESXi router recipe (Remove rclone if you dont want to resize the root partition)
+#CUSTOM_PACKAGES="open-vm-tools kmod-vmxnet3 \
+#    -dnsmasq dnsmasq-full logrotate wsdd2 ca-bundle zoneinfo-australia-nz wpad-basic-openssl sqm-scripts \
+#    block-mount blockd kmod-usb-core kmod-usb2 kmod-usb3 kmod-usb-storage kmod-fs-ext4 kmod-fs-ntfs3 \
+#    nano tcpdump rsync curl rclone socat \
+#    luci luci-app-ddns luci-app-sqm luci-app-https-dns-proxy https-dns-proxy luci-app-mwan3 mwan3 iptables-nft ip6tables-nft \
+#    luci-app-openvpn openvpn-openssl luci-app-samba4 samba4-server \
+#    kmod-igc kmod-mt7915e kmod-mt7916-firmware \
+#    kmod-usb-net kmod-usb-net-asix-ax88179 kmod-usb-net-rtl8152 \
+#    kmod-usb-net kmod-usb-net-rndis usbmuxd kmod-usb-net-ipheth libimobiledevice usbutils"
+    
+    # Line 1: VMware drivers
+    # Line 2: System things
+    # Line 3: USB storage and filesystem support 
+    # Line 4: Utilities 
+    # Line 5/6: Luci based services and dependencies 
+    # Line 7: Ethernet and Wifi (Intel i226 + MediaTek AW7916-NPD)
+    # Line 8: USB Ethernet Dongles 
+    # Line 9: Android and Iphone tethering 
+    
+    # If building from source consider removing these extra defaults ()not added by imagebulder method): 
+    # kmod-amazon-ena kmod-amd-xgbe kmod-bnx2 kmod-dwmac-intel kmod-igb kmod-tg3 kmod-forcedeth kmod-ixgbe kmod-r8169 kmod-phy-realek kmod-e1000 kmod-e1000e
 
 #######################################################################################################################
 # Mandatory static script parameters - do not edit unless expert
@@ -149,16 +171,16 @@ fi
 # Display the VM conversion menu
 echo
 show_menu() {
-    echo "Select your preferred virtual machine format:"
-    echo "1) qcow2 :QEMU "
-    echo "2) eqd   :Enhanced QEMU"
-    echo "3) vdi   :Oracle Virutalbox"
-    echo "4) vhdx  :MS HyperV"
-    echo "5) vmdk  :VMware"
+    echo "    Select VM conversion format:"
+    echo "    1) QEMU...............: qcow2"
+    echo "    2) QEMU Enhanced......: eqd"
+    echo "    3) Oracle Virutalbox..: vdi"
+    echo "    4) MS HyperV..........: vhdx"
+    echo "    5) VMware.............: vmdk"
 }
 read_choice() {
     local choice
-    read -p "Enter your choice (1-5): " choice
+    read -p "    Enter your choice (1-5): " choice
     echo $choice
 }
 conversion_cmd() {
@@ -178,7 +200,8 @@ conversion_cmd() {
             CONVERT="qemu-img convert -f raw -O vhdx"
             ;;
         5)
-            CONVERT="qemu-img convert -f raw -O vmdk"
+            CONVERT="qemu-img convert -f raw -O vmdk" # May require vmkfstools -i source.vmdk destintation.vmdk to boot
+
             ;;
         *)
             echo "Invalid choice. Please select a number between 1 and 5."
@@ -239,15 +262,17 @@ mkdir -p "${INJECT_FILES}"
 if [[ ${CREATE_VM} = true ]] && [[ ${IMAGE_PROFILE} = "generic" ]]; then mkdir -p "${VMDIR}" ; fi
 
 # Option to pre-configure images with injected config files
-echo -e ${LYELLOW}
-read -p $"Copy your (optional) config files to ${INJECT_FILES} now for inclusion into the new image, then hit enter to begin build..."
-echo -e ${NC}
+echo -e "${LYELLOW}"
+echo -e "    TO (OPTIONALLY) BAKE A CUSTOM CONFIG INTO YOUR OWRT IMAGE:"
+echo -e "    Copy your OWRT config files to ${CYAN}${INJECT_FILES}${LYELLOW} before proceeding."
+echo
+read -p "    Press ENTER to begin the OWRT build..."
+echo -e "${NC}"
 
 # Install OWRT build system dependencies for recent Ubuntu/Debian.
 # See here for other distro dependencies: https://openwrt.org/docs/guide-developer/toolchain/install-buildsystem
-    sudo apt-get update  2>&1 | tee -a ${BUILD_LOG}
     sudo apt-get install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
-    gettext git libncurses-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils zstd  2>&1 | tee -a ${BUILD_LOG}
+    gettext git libncurses5-dev libssl-dev python3-distutils python3-setuptools rsync unzip zlib1g-dev file wget qemu-utils zstd  2>&1 | tee -a ${BUILD_LOG}
 
 # Download the image builder source if we haven't already
 if [ ! -f "${SOURCE_FILE}" ]; then
@@ -274,7 +299,12 @@ fi
     make clean 2>&1 | tee -a ${BUILD_LOG}
     make image PROFILE="${IMAGE_PROFILE}" PACKAGES="${CUSTOM_PACKAGES}" EXTRA_IMAGE_NAME="${IMAGE_TAG}" FILES="${INJECT_FILES}" BIN_DIR="${OUTPUT}" 2>&1 | tee -a ${BUILD_LOG}
 
+# Convert to virtual machine images
 if [[ ${CREATE_VM} = true ]]; then
+    # Extract all just before the image conversion type in the coversion command (in case of extra options/commands after '-O imagetype' )
+    EXT="${CONVERT##* -O }"
+    # Extracy only the image conversion output file extention (e.g., 'vmdk')
+    EXT="${EXT%% *}"
     # Copy the new images to a separate directory for conversion to vm image
     cp $OUTPUT/*.gz $VMDIR
     # Create a list of new images to unzip
@@ -283,12 +313,16 @@ if [[ ${CREATE_VM} = true ]]; then
     echo $LIST
     gunzip $LIST
     done
+
     # Convert the unzipped images
     for LIST in $VMDIR/*.img
     do
     echo $LIST
-    eval $CONVERT $LIST ${LIST%.*}.${CONVERT##* } 2>&1 | tee -a ${BUILD_LOG}
+    eval $CONVERT $LIST ${LIST%.*}.${EXT} 2>&1 | tee -a ${BUILD_LOG}
 	done
-    # Clean up
+
+    # Optionally remove all extracted raw source images from $VMDIR
     rm -f $VMDIR/*.img
 fi
+
+
