@@ -55,6 +55,15 @@ CUSTOM_PACKAGES="blockd block-mount kmod-fs-ext4 kmod-usb2 kmod-usb3 kmod-usb-st
     -dnsmasq dnsmasq-full luci luci-app-ddns luci-app-samba4 luci-app-sqm sqm-scripts \
     luci-app-attendedsysupgrade curl nano luci-app-attendedsysupgrade"
 
+# wrt1900acsv2 recipe
+#CUSTOM_PACKAGES="-dnsmasq dnsmasq-full wsdd2 ca-bundle zoneinfo-australia-nz wpad-basic-openssl sqm-scripts \
+#    block-mount blockd kmod-usb-core kmod-usb2 kmod-usb3 kmod-usb-storage kmod-fs-ext4 kmod-fs-ntfs3 \
+#    nano tcpdump rsync curl socat luci-app-attendedsysupgrade luci-app-advanced-reboot \
+#    luci luci-app-ddns luci-app-sqm luci-app-https-dns-proxy https-dns-proxy luci-app-mwan3 mwan3 iptables-nft ip6tables-nft \
+#    luci-app-openvpn openvpn-openssl luci-app-samba4 samba4-server \
+#    kmod-usb-net-rtl8152 kmod-usb-net-asix-ax88179 kmod-mt7921u \
+#    kmod-usb-net kmod-usb-net-rndis"
+
 # My ESXi virtual router recipe (Skip Rclone to avoid resize of root partition)
 #CUSTOM_PACKAGES="open-vm-tools kmod-vmxnet3 \
 #    -dnsmasq dnsmasq-full logrotate wsdd2 ca-bundle zoneinfo-australia-nz wpad-basic-openssl sqm-scripts \
@@ -65,7 +74,7 @@ CUSTOM_PACKAGES="blockd block-mount kmod-fs-ext4 kmod-usb2 kmod-usb3 kmod-usb-st
 #    kmod-igc kmod-mt7915e kmod-mt7916-firmware kmod-usb-net-rtl8152 kmod-mt7921u \
 #    kmod-usb-net kmod-usb-net-rndis"
     
-# Notes on above recipe
+# Notes on above ESXi recipe
 # Line 7: Ethernet and Wifi (Intel i226, MediaTek AW7916-NPD wifi6e, realtek 2.5gbe usb, AWUS036AXML wifi6e. (Removed kmod-usb-net-asix-ax88179)
 # Line 8: Android tethering - for iPhone add: usbmuxd kmod-usb-net-ipheth libimobiledevice usbutils
 # If building from source, consider removing the below extra NIC driver defaults not added with imagebulder: 
