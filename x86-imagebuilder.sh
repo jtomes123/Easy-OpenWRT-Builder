@@ -70,10 +70,10 @@ CUSTOM_PACKAGES="blockd block-mount kmod-fs-ext4 kmod-usb2 kmod-usb3 kmod-usb-st
 #    block-mount blockd kmod-usb-core kmod-usb2 kmod-usb3 kmod-usb-storage kmod-fs-ext4 kmod-fs-ntfs3 \
 #    nano tcpdump rsync curl rclone socat \
 #    luci luci-app-ddns luci-app-sqm luci-app-https-dns-proxy https-dns-proxy luci-app-mwan3 mwan3 iptables-nft ip6tables-nft \
-#    luci-app-openvpn openvpn-openssl luci-app-samba4 samba4-server \
+#   luci-app-openvpn openvpn-openssl luci-app-samba4 samba4-server \
 #    kmod-igc kmod-mt7915e kmod-mt7916-firmware kmod-usb-net-rtl8152 kmod-mt7921u \
 #    kmod-usb-net kmod-usb-net-rndis"
-    
+  
 # Notes on above ESXi recipe
 # Line 7: Ethernet and Wifi (Intel i226, MediaTek AW7916-NPD wifi6e, realtek 2.5gbe usb, AWUS036AXML wifi6e. (Removed kmod-usb-net-asix-ax88179)
 # Line 8: Android tethering - for iPhone add: usbmuxd kmod-usb-net-ipheth libimobiledevice usbutils
