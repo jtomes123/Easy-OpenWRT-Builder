@@ -50,10 +50,18 @@ clear
 # ADD YOUR CUSTOM PACKAGE RECIPE HERE
 #######################################################################################################################
 
+CUSTOM_PACKAGES="base-files busybox ca-bundle dnsmasq dropbear e2fsprogs firewall4 fstools grub2-bios-setup \
+kmod-button-hotplug kmod-nft-offload libc libgcc libustream-mbedtls logd mkf2fs mtd netifd nftables odhcp6c \
+odhcpd-ipv6only opkg partx-utils ppp ppp-mod-pppoe procd procd-seccomp procd-ujail uci uclient-fetch \
+urandom-seed urngd kmod-amazon-ena kmod-amd-xgbe kmod-bnx2 kmod-e1000e kmod-e1000 kmod-forcedeth kmod-fs-vfat \
+kmod-igb kmod-igc kmod-ixgbe kmod-r8169 kmod-tg3 luci mosquitto pciutils external-protocol block-mount e2fsprogs \
+kmod-usb-storage-uas kmod-usb3 luci-app-hd-idle kmod-fs-ext4 kmod-fs-exfat kmod-fs-ntfs3 libstdcpp6 \
+libintl-full8 icu zlib icu-full-data libopenssl dockerd docker luci-app-dockerman"
+
 # Basic example recipe, change these to your requirements.
-CUSTOM_PACKAGES="blockd block-mount kmod-fs-ext4 kmod-usb2 kmod-usb3 kmod-usb-storage kmod-usb-core usbutils \
-    -dnsmasq dnsmasq-full luci luci-app-ddns luci-app-samba4 luci-app-sqm sqm-scripts \
-    luci-app-attendedsysupgrade curl nano luci-app-attendedsysupgrade"
+#CUSTOM_PACKAGES="blockd block-mount kmod-fs-ext4 kmod-usb2 kmod-usb3 kmod-usb-storage kmod-usb-core usbutils \
+#    -dnsmasq dnsmasq-full luci luci-app-ddns luci-app-samba4 luci-app-sqm sqm-scripts \
+#    luci-app-attendedsysupgrade curl nano luci-app-attendedsysupgrade"
 
 # wrt1900acsv2 recipe
 #CUSTOM_PACKAGES="-dnsmasq dnsmasq-full wsdd2 ca-bundle zoneinfo-australia-nz wpad-basic-openssl sqm-scripts \
